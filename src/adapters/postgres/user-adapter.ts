@@ -577,7 +577,7 @@ export class PostgresUserService implements IServicelocator {
     // It is considered that if user is not present in keycloak it is not present in database as well
     try {
       if (request.headers.authorization) {
-        const decoded: any = jwt_decode(request.headers.authorization);
+        const decoded: any = jwt_decode(request?.headers?.authorization);
         userCreateDto.createdBy = decoded?.sub
         userCreateDto.updatedBy = decoded?.sub
       }
@@ -820,7 +820,6 @@ export class PostgresUserService implements IServicelocator {
       user.dob = new Date(userCreateDto.dob);
     }
     let result = await this.usersRepository.save(user);
-
 
 
     if (result && userCreateDto.tenantCohortRoleMapping) {
