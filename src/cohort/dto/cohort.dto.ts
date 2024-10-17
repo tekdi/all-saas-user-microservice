@@ -23,13 +23,13 @@ export class CohortDto {
   // programId: string;
 
   //parentId
-  // @ApiPropertyOptional({
-  //   type: String,
-  //   description: "The parentId of the cohort",
-  //   default: "",
-  // })
-  // @Expose()
-  // parentId: string;
+  @ApiPropertyOptional({
+    type: String,
+    description: "The parentId of the cohort",
+    default: "",
+  })
+  @Expose()
+  parentId: string;
 
   //referenceId
   // @ApiPropertyOptional({
@@ -117,8 +117,8 @@ export class CohortDto {
 export class ReturnResponseBody {
   @Expose()
   cohortId: string;
-  // @Expose()
-  // parentId: string;
+  @Expose()
+  parentId: string;
   @Expose()
   name: string;
   @Expose()
@@ -132,7 +132,7 @@ export class ReturnResponseBody {
 
   constructor(cohortDto: CohortCreateDto) {
     this.cohortId = cohortDto.cohortId;
-    // this.parentId = cohortDto.parentId;
+    this.parentId = cohortDto.parentId;
     this.name = cohortDto.name;
     this.type = cohortDto.type;
     this.status = cohortDto.status;

@@ -302,7 +302,7 @@ export class PostgresCohortService {
       const existData = await this.cohortRepository.find({
         where: {
           name: cohortCreateDto.name,
-          // parentId: cohortCreateDto.parentId ? cohortCreateDto.parentId : IsNull(),
+          parentId: cohortCreateDto.parentId ? cohortCreateDto.parentId : IsNull(),
         },
       });
       if (existData.length > 0) {

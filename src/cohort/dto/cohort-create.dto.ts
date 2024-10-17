@@ -33,13 +33,13 @@ export class CohortCreateDto {
   // programId: string;
 
   //parentId
-  // @ApiPropertyOptional({
-  //   type: String,
-  //   description: "The parentId of the cohort",
-  //   default: "",
-  // })
-  // @Expose()
-  // parentId: string;
+  @ApiPropertyOptional({
+    type: String,
+    description: "The parentId of the cohort",
+    default: "",
+  })
+  @Expose()
+  parentId: string;
 
   //referenceId
   // @Expose()
