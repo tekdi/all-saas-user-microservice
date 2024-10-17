@@ -65,12 +65,12 @@ export class UserDto {
   @Expose()
   password: string;
 
-  @ApiPropertyOptional({
-    type: String,
-    description: "The district of the user",
-  })
-  @Expose()
-  district: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The district of the user",
+  // })
+  // @Expose()
+  // district: string;
 
   @ApiPropertyOptional({
     type: String,
@@ -79,19 +79,19 @@ export class UserDto {
   @Expose()
   state: string;
 
-  @ApiPropertyOptional({
-    type: String,
-    description: "The address of the user",
-  })
-  @Expose()
-  address: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The address of the user",
+  // })
+  // @Expose()
+  // address: string;
 
-  @ApiPropertyOptional({
-    type: String,
-    description: "The pincode of the user",
-  })
-  @Expose()
-  pincode: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The pincode of the user",
+  // })
+  // @Expose()
+  // pincode: string;
 
   @Expose()
   createdAt: string;

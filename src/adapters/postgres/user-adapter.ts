@@ -811,10 +811,10 @@ export class PostgresUserService implements IServicelocator {
       user.createdBy = userCreateDto?.createdBy || userCreateDto?.userId,
       user.updatedBy = userCreateDto?.updatedBy || userCreateDto?.userId,
       user.userId = userCreateDto?.userId,
-      user.state = userCreateDto?.state,
-      user.district = userCreateDto?.district,
-      user.address = userCreateDto?.address,
-      user.pincode = userCreateDto?.pincode
+      user.state = userCreateDto?.state
+      // user.district = userCreateDto?.district,
+      // user.address = userCreateDto?.address,
+      // user.pincode = userCreateDto?.pincode
 
     if (userCreateDto?.dob) {
       user.dob = new Date(userCreateDto.dob);

@@ -77,6 +77,7 @@ async function createUserInKeyCloak(query, token) {
       },
     ],
   });
+  
 
   const config = {
     method: "post",

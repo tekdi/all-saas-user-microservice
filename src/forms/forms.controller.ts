@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Req, Res, SerializeOptions, UsePipes, ValidationPipe } from '@nestjs/common';
 import { FormsService } from './forms.service';
 import { ApiCreatedResponse, ApiForbiddenResponse, ApiHeader, ApiQuery, ApiTags } from '@nestjs/swagger';
-
+import { Request,Response } from 'express';
 @Controller('form')
 @ApiTags('Forms')
 export class FormsController {

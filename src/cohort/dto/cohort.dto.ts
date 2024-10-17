@@ -14,31 +14,31 @@ export class CohortDto {
   updatedAt: Date;
 
   //programId
-  @ApiPropertyOptional({
-    type: String,
-    description: "The programId of the cohort",
-    default: "",
-  })
-  @Expose()
-  programId: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The programId of the cohort",
+  //   default: "",
+  // })
+  // @Expose()
+  // programId: string;
 
   //parentId
-  @ApiPropertyOptional({
-    type: String,
-    description: "The parentId of the cohort",
-    default: "",
-  })
-  @Expose()
-  parentId: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The parentId of the cohort",
+  //   default: "",
+  // })
+  // @Expose()
+  // parentId: string;
 
   //referenceId
-  @ApiPropertyOptional({
-    type: String,
-    description: "The referenceId of the cohort",
-    default: "",
-  })
-  @Expose()
-  referenceId: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The referenceId of the cohort",
+  //   default: "",
+  // })
+  // @Expose()
+  // referenceId: string;
 
   //name
   @ApiProperty({
@@ -69,27 +69,27 @@ export class CohortDto {
   status: string;
 
   //image
-  @Expose()
-  @ApiPropertyOptional({ type: "string", format: "binary" })
-  image: string;
+  // @Expose()
+  // @ApiPropertyOptional({ type: "string", format: "binary" })
+  // image: string;
 
   //attendanceCaptureImage
-  @ApiProperty({
-    type: Boolean,
-    description: "Capture image while marking the attendance",
-    default: false,
-  })
-  @Expose()
-  attendanceCaptureImage: boolean;
+  // @ApiProperty({
+  //   type: Boolean,
+  //   description: "Capture image while marking the attendance",
+  //   default: false,
+  // })
+  // @Expose()
+  // attendanceCaptureImage: boolean;
 
   //metadata
-  @ApiPropertyOptional({
-    type: String,
-    description: "The metadata of cohort",
-    default: "",
-  })
-  @Expose()
-  metadata: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The metadata of cohort",
+  //   default: "",
+  // })
+  // @Expose()
+  // metadata: string;
 
   //createdBy
   @Expose()
@@ -117,8 +117,8 @@ export class CohortDto {
 export class ReturnResponseBody {
   @Expose()
   cohortId: string;
-  @Expose()
-  parentId: string;
+  // @Expose()
+  // parentId: string;
   @Expose()
   name: string;
   @Expose()
@@ -127,16 +127,16 @@ export class ReturnResponseBody {
   status: string;
   @Expose()
   tenantId: string;
-  @Expose()
-  academicYearId: string;
+  // @Expose()
+  // academicYearId: string;
 
   constructor(cohortDto: CohortCreateDto) {
     this.cohortId = cohortDto.cohortId;
-    this.parentId = cohortDto.parentId;
+    // this.parentId = cohortDto.parentId;
     this.name = cohortDto.name;
     this.type = cohortDto.type;
     this.status = cohortDto.status;
     this.tenantId = cohortDto.tenantId;
-    this.academicYearId = cohortDto.academicYearId;
+    // this.academicYearId = cohortDto.academicYearId;
   }
 }
