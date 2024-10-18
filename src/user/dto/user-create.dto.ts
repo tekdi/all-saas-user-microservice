@@ -102,12 +102,12 @@ export class UserCreateDto {
   @Expose()
   password: string;
 
-  // @ApiPropertyOptional({
-  //   type: String,
-  //   description: "The district of the user",
-  // })
-  // @Expose()
-  // district: string;
+  @ApiPropertyOptional({
+    type: String,
+    description: "The district of the user",
+  })
+  @Expose()
+  district: string;
 
   @ApiPropertyOptional({
     type: String,
