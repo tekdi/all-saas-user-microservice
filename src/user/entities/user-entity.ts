@@ -37,11 +37,6 @@ export class User {
   @Column({ nullable: true })
   state: string;
 
-  @Column({ nullable: true })
-  address: string;
-
-  @Column({ nullable: true })
-  pincode: string;
 
   @CreateDateColumn({
     type: "timestamp with time zone",
@@ -74,13 +69,7 @@ export class User {
   })
   status: UserStatus;
 
-  @Column({ nullable: true })
-  reason: string;
-
   userRoleMappings: User;
-
-  // @OneToMany(() => CohortMembers, cohortMember => cohortMember.cohort)
-  // cohortMembers: CohortMembers[];
 
   @OneToMany(
     () => UserTenantMapping,

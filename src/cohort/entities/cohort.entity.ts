@@ -26,22 +26,7 @@ export class Cohort {
   status: string;
 
   @Column({ nullable: true })
-  image: string;
-
-  @Column({ nullable: true })
-  referenceId: string;
-
-  @Column({ nullable: true })
-  metadata: string;
-
-  @Column({ nullable: true })
   tenantId: string;
-
-  @Column({ nullable: true })
-  programId: string;
-
-  @Column({ nullable: true })
-  attendanceCaptureImage: boolean;
 
   @CreateDateColumn({
     type: "timestamp with time zone",
