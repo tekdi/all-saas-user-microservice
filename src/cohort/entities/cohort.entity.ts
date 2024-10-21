@@ -40,7 +40,7 @@ export class Cohort {
   @Column({ nullable: true })
   programId: string;
 
-  @Column()
+  @Column({ nullable: true })
   attendanceCaptureImage: boolean;
 
   @CreateDateColumn({

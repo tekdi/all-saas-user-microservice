@@ -15,7 +15,7 @@ export class CohortCreateDto {
   @Expose()
   tenantId: string;
 
-  academicYearId: string;
+  // academicYearId: string;
 
   @Expose()
   createdAt: string;
@@ -24,13 +24,13 @@ export class CohortCreateDto {
   updatedAt: string;
 
   //programId
-  @ApiPropertyOptional({
-    type: String,
-    description: "The programId of the cohort",
-    default: "",
-  })
-  @Expose()
-  programId: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The programId of the cohort",
+  //   default: "",
+  // })
+  // @Expose()
+  // programId: string;
 
   //parentId
   @ApiPropertyOptional({
@@ -42,8 +42,8 @@ export class CohortCreateDto {
   parentId: string;
 
   //referenceId
-  @Expose()
-  referenceId: string;
+  // @Expose()
+  // referenceId: string;
 
   //name
   @ApiProperty({
@@ -80,8 +80,8 @@ export class CohortCreateDto {
   status: string;
 
   //attendanceCaptureImage
-  @Expose()
-  attendanceCaptureImage: boolean;
+  // @Expose()
+  // attendanceCaptureImage: boolean;
 
   //image need for future
   // @Expose()
@@ -89,8 +89,8 @@ export class CohortCreateDto {
   // image: string;
 
   //metadata
-  @Expose()
-  metadata: string;
+  // @Expose()
+  // metadata: string;
 
   //createdBy
   @Expose()

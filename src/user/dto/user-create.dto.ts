@@ -26,10 +26,10 @@ export class tenantRoleMappingDto {
   @ApiPropertyOptional({
     type: [String],
     description: "The cohort id of the user",
-    default: [],
+    // default: [],
   })
   @Expose()
-  @IsOptional()
+  // @IsOptional()
   @IsUUID(undefined, { each: true })
   cohortId: string[];
 
@@ -116,19 +116,19 @@ export class UserCreateDto {
   @Expose()
   state: string;
 
-  @ApiPropertyOptional({
-    type: String,
-    description: "The address of the user",
-  })
-  @Expose()
-  address: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The address of the user",
+  // })
+  // @Expose()
+  // address: string;
 
-  @ApiPropertyOptional({
-    type: String,
-    description: "The pincode of the user",
-  })
-  @Expose()
-  pincode: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The pincode of the user",
+  // })
+  // @Expose()
+  // pincode: string;
 
   @Expose()
   createdAt: string;
