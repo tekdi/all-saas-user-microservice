@@ -21,6 +21,7 @@ export const API_RESPONSES = {
     TENANT_UPDATE: 'Tenant updated successfully',
     TENANT_DELETE: 'Tenant deleted successfully',
     TENANTID_CANNOT_BE_CHANGED: "tenantId cannot be changed",
+    TENANT_COHORT_EXISTS :"Access denied, Cohorts are associated with this tenant.",
     ACADEMICYEAR: 'Academic Year Created Successfully',
     ACADEMICYEAR_EXIST: 'Academic Year Already Exist',
     ACADEMICYEAR_YEAR: 'Already Exist',

@@ -1,15 +1,16 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Tenants } from './entities/tenant.entity';
+import { Cohort } from '../cohort/entities/cohort.entity';
 import { Repository } from 'typeorm';
 import APIResponse from "src/common/responses/response";
 import { InjectRepository } from '@nestjs/typeorm';
 import { API_RESPONSES } from '@utils/response.messages';
 import { APIID } from '@utils/api-id.config';
-
-
 @Injectable()
 export class TenantService {
     constructor(
+        @InjectRepository(Cohort)
+        private cohortRepository: Repository<Cohort>,
         @InjectRepository(Tenants)
         private tenantRepository: Repository<Tenants>,
     ) { }
@@ -100,6 +101,18 @@ export class TenantService {
                     apiId,
                     API_RESPONSES.CONFLICT,
                     API_RESPONSES.TENANT_EXISTS,
+                    HttpStatus.CONFLICT
+                );
+            }
+            let cohorts = await this.cohortRepository.find({
+                where: { "tenantId":tenantId, },
+            });
+            if(cohorts.length>0) {
+                return APIResponse.error(
+                    response,
+                    apiId,
+                    API_RESPONSES.CONFLICT,
+                    API_RESPONSES.TENANT_COHORT_EXISTS,
                     HttpStatus.CONFLICT
                 );
             }
