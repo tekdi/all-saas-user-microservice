@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Patch, Post, Query, Req, Res, SerializeOptions } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Query, Req, Res, SerializeOptions, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TenantService } from './tenant.service';
-import { ApiCreatedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 import { TenantCreateDto } from './dto/tenant-create.dto';
+import { TenantUpdateDto } from './dto/tenant-update.dto';
 import { Request,Response } from "express";
 @Controller('tenant')
 export class TenantController {
@@ -24,8 +25,11 @@ export class TenantController {
 
     //Create a new tenant
     @Post("/create")
+    @ApiBody({type :TenantCreateDto})
+    @UsePipes(new ValidationPipe({ transform: true }))
     @ApiCreatedResponse({ description: "Tenant Created Successfully" })
     @ApiForbiddenResponse({ description: "Forbidden" })
+    @ApiBadRequestResponse({ description: "Bad request." })
     @SerializeOptions({
         strategy: "excludeAll",
     })
@@ -56,6 +60,8 @@ export class TenantController {
 
     //Update a tenant
     @Patch("/update")
+    @ApiBody({ type: TenantUpdateDto })
+    @UsePipes(new ValidationPipe({ transform: true }))
     @ApiCreatedResponse({ description: "Tenant Data Fetch" })
     @ApiForbiddenResponse({ description: "Forbidden" })
     @SerializeOptions({
@@ -64,9 +70,10 @@ export class TenantController {
     public async updateTenants(
         @Req() request: Request,
         @Res() response: Response,
+        @Body() tenantUpdateDto: TenantUpdateDto,
         @Query("id") id: string
     ) {
         const tenantId = id;
-        return await this.tenantService.updateTenants(request, tenantId, response);
+        return await this.tenantService.updateTenants(request, tenantId, response,tenantUpdateDto);
     }
 }

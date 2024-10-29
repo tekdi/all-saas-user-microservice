@@ -13,6 +13,7 @@ export class CohortCreateDto {
   cohortId: string;
 
   @Expose()
+  @IsNotEmpty()
   tenantId: string;
 
   // academicYearId: string;

@@ -49,17 +49,17 @@ export class PostgresCohortService {
   public async getCohortsDetails(requiredData, res) {
     const apiId = APIID.COHORT_READ;
 
-    const cohortAcademicYear : any[] = await this.postgresCohortMembersService.isCohortExistForYear(requiredData.academicYearId,requiredData.cohortId);
+    // const cohortAcademicYear : any[] = await this.postgresCohortMembersService.isCohortExistForYear(requiredData.academicYearId,requiredData.cohortId);
 
-    if(cohortAcademicYear.length !== 1) {
-      return APIResponse.error(
-        res,
-        apiId,
-        "BAD_REQUEST",
-        API_RESPONSES.COHORT_NOT_IN_ACADEMIC_YEAR,
-        HttpStatus.BAD_REQUEST
-      );
-    } 
+    // if(cohortAcademicYear.length !== 1) {
+    //   return APIResponse.error(
+    //     res,
+    //     apiId,
+    //     "BAD_REQUEST",
+    //     API_RESPONSES.COHORT_NOT_IN_ACADEMIC_YEAR,
+    //     HttpStatus.BAD_REQUEST
+    //   );
+    // } 
 
     try {
       const cohorts = await this.cohortRepository.find({
@@ -394,6 +394,16 @@ export class PostgresCohortService {
           HttpStatus.CONFLICT
         );
       }
+
+      if (cohortUpdateDto.cohortId && cohortUpdateDto.cohortId !== cohortId) {
+        return APIResponse.error(
+            res,
+            apiId,
+            API_RESPONSES.CONFLICT,
+            API_RESPONSES.COHORTID_CANNOT_BE_CHANGED,
+            HttpStatus.CONFLICT
+        );
+    }
 
       // const checkData = await this.checkIfCohortExist(cohortId);
       const existingCohorDetails = await this.cohortRepository.findOne({
@@ -763,6 +773,19 @@ export class PostgresCohortService {
         );
       }
       const checkData = await this.checkIfCohortExist(cohortId);
+      let cohortCohortMemberExist=await this.cohortMembersRepository.find(
+        {
+          where: { "cohortId":cohortId, },
+        })
+      if(checkData === true && cohortCohortMemberExist.length>0) {
+        return APIResponse.error(
+          response,
+          apiId,
+          API_RESPONSES.CONFLICT,
+          API_RESPONSES.COHORTMEMBER_COHORT_EXIST,
+          HttpStatus.CONFLICT
+      );
+      }
 
       if (checkData === true) {
         let query = `UPDATE public."Cohort"
@@ -772,8 +795,8 @@ export class PostgresCohortService {
         const affectedrows = await this.cohortRepository.query(query, [
           cohortId,
         ]);
-        await this.cohortMembersRepository.delete({ cohortId: cohortId });
-        await this.fieldValuesRepository.delete({ itemId: cohortId });
+        // await this.cohortMembersRepository.delete({ cohortId: cohortId });
+        // await this.fieldValuesRepository.delete({ itemId: cohortId });
 
         return APIResponse.success(
           response,

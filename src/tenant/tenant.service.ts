@@ -50,6 +50,7 @@ export class TenantService {
 
     public async createTenants(request, tenantCreateDto, response) {
         let apiId = APIID.TENANT_CREATE;
+        tenantCreateDto.status=tenantCreateDto.status || 'active'
         try {
             let checkExitTenants = await this.tenantRepository.find({
                 where: {
@@ -100,14 +101,17 @@ export class TenantService {
                     response,
                     apiId,
                     API_RESPONSES.CONFLICT,
-                    API_RESPONSES.TENANT_EXISTS,
+                    API_RESPONSES.TENANT_NOT_FOUND,
                     HttpStatus.CONFLICT
                 );
             }
             let cohorts = await this.cohortRepository.find({
                 where: { "tenantId":tenantId, },
             });
-            if(cohorts.length>0) {
+            let cohortsArchived = await this.cohortRepository.find({
+                where: { "tenantId":tenantId,"status":"active" },
+            });
+            if(cohortsArchived.length>0) {
                 return APIResponse.error(
                     response,
                     apiId,
@@ -117,14 +121,22 @@ export class TenantService {
                 );
             }
 
-            let result = await this.tenantRepository.delete(tenantId);
-            return APIResponse.success(
-                response,
-                apiId,
-                result,
-                HttpStatus.OK,
-                API_RESPONSES.TENANT_DELETE,
-            );
+            // let result = await this.tenantRepository.delete(tenantId);
+            if(checkExitTenants.length>0) {
+                let query = `UPDATE public."Tenants"
+                SET "status" = 'archived'
+                WHERE "tenantId" = $1`;
+                const affectedrows = await this.cohortRepository.query(query, [
+                tenantId,
+                ]);
+                return APIResponse.success(
+                    response,
+                    apiId,
+                    affectedrows[1],
+                    HttpStatus.OK,
+                    API_RESPONSES.TENANT_DELETE,
+                );
+            }    
         } catch (error) {
             const errorMessage = error.message || API_RESPONSES.INTERNAL_SERVER_ERROR;
             return APIResponse.error(
@@ -137,10 +149,10 @@ export class TenantService {
         }
     }
 
-    public async updateTenants(request, tenantId, response) {
+    public async updateTenants(request, tenantId, response,tenantUpdateDto) {
         let apiId = APIID.TENANT_UPDATE;
         try {
-            if (request.body.tenantId && request.body.tenantId !== tenantId) {
+            if (tenantUpdateDto.tenantId && tenantUpdateDto.tenantId !== tenantId) {
                 return APIResponse.error(
                     response,
                     apiId,
@@ -160,14 +172,14 @@ export class TenantService {
                     response,
                     apiId,
                     API_RESPONSES.CONFLICT,
-                    API_RESPONSES.TENANT_EXISTS,
+                    API_RESPONSES.TENANT_NOT_FOUND,
                     HttpStatus.CONFLICT
                 );
             }
 
             let result = await this.tenantRepository.update(
                 tenantId,
-                request.body
+                tenantUpdateDto
             );
             return APIResponse.success(
                 response,

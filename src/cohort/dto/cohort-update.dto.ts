@@ -24,12 +24,12 @@ export class CohortUpdateDto {
   updatedAt: string;
 
   //programId
-  @ApiPropertyOptional({
-    type: String,
-    description: "The programId of the cohort",
-  })
-  @Expose()
-  programId: string;
+  // @ApiPropertyOptional({
+  //   type: String,
+  //   description: "The programId of the cohort",
+  // })
+  // @Expose()
+  // programId: string;
 
   //parentId
   @ApiPropertyOptional({
@@ -40,8 +40,8 @@ export class CohortUpdateDto {
   parentId: string;
 
   //referenceId
-  @Expose()
-  referenceId: string;
+  // @Expose()
+  // referenceId: string;
 
   //name
   @ApiPropertyOptional({
@@ -77,8 +77,8 @@ export class CohortUpdateDto {
   status: string;
 
   //attendanceCaptureImage
-  @Expose()
-  attendanceCaptureImage: boolean;
+  // @Expose()
+  // attendanceCaptureImage: boolean;
 
   //image need for future
   // @Expose()
@@ -86,8 +86,8 @@ export class CohortUpdateDto {
   // image: string;
 
   //metadata
-  @Expose()
-  metadata: string;
+  // @Expose()
+  // metadata: string;
 
   //createdBy
   @Expose()
