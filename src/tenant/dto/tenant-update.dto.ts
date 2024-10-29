@@ -1,8 +1,8 @@
 import { Expose, Type } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
-export enum TenantStatus { Active = 'active', Archived = 'archived', Inactive = 'inactive', }
-export class TenantCreateDto {
+export enum TenantStatus { Active = 'active', Inactive = 'inactive', }
+export class TenantUpdateDto {
     
 
     @Expose()
@@ -20,8 +20,7 @@ export class TenantCreateDto {
         description: "Tenant name",
         default: "",
     })
-    @IsString()
-    @IsNotEmpty()
+    // @IsString()
     @Expose()
     name: string;
 
@@ -31,7 +30,7 @@ export class TenantCreateDto {
         description: "Domain Name",
         default: "",
     })
-    @IsString()
+    // @IsString()
     @Expose()
     domain: string;
 
@@ -41,7 +40,7 @@ export class TenantCreateDto {
         description: "The status of Tenant",
     })
     @IsOptional()
-    @IsEnum(TenantStatus, { message: 'Status must be one of: active, archived, inactive', })
+    @IsEnum(TenantStatus, { message: 'Status must be one of: active, inactive', })
     @Expose() 
     status: TenantStatus;
 
@@ -54,7 +53,7 @@ export class TenantCreateDto {
     @Expose()
     params: object;
 
-    constructor(obj?: Partial<TenantCreateDto>) {
+    constructor(obj?: Partial<TenantUpdateDto>) {
         if (obj) {
             Object.assign(this, obj);
         }

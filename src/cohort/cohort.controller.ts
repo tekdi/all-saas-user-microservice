@@ -65,9 +65,9 @@ export class CohortController {
   @ApiBadRequestResponse({ description: "Bad Request" })
   @SerializeOptions({ strategy: "excludeAll", })
   @ApiHeader({ name: "tenantid", })
-  @ApiHeader({
-    name: "academicyearid",
-  })
+  // @ApiHeader({
+  //   name: "academicyearid",
+  // })
   @ApiQuery({ name: "children", required: false, type: Boolean })
   @ApiQuery({ name: "customField", required: false, type: Boolean })
   public async getCohortsDetails(
@@ -83,14 +83,14 @@ export class CohortController {
     if (!tenantId || !isUUID(tenantId)) {
       throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
     }
-    if (!academicYearId || !isUUID(academicYearId)) {
-      throw new BadRequestException(API_RESPONSES.ACADEMICYEARID_VALIDATION);
-    }
+    // if (!academicYearId || !isUUID(academicYearId)) {
+    //   throw new BadRequestException(API_RESPONSES.ACADEMICYEARID_VALIDATION);
+    // }
     const getChildDataValueBoolean = children === 'true';
     let fieldValueBooelan = customField === 'true'
     let requiredData = {
       cohortId: cohortId,
-      academicYearId: academicYearId,
+      // academicYearId: academicYearId,
       getChildData: getChildDataValueBoolean,
       customField: fieldValueBooelan
     }
@@ -132,6 +132,9 @@ export class CohortController {
   ) {
     let tenantId = headers["tenantid"];
     // let academicYearId = headers["academicyearid"];
+    if (!cohortCreateDto.tenantId || !isUUID(cohortCreateDto.tenantId)) {
+      throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
+    }
     if (!tenantId || !isUUID(tenantId)) {
       throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
     }
@@ -139,7 +142,7 @@ export class CohortController {
     //   throw new BadRequestException(API_RESPONSES.ACADEMICYEARID_VALIDATION);
     // }
     // cohortCreateDto.academicYearId = academicYearId;
-    cohortCreateDto.tenantId = tenantId;
+    // cohortCreateDto.tenantId = tenantId;
     return await this.cohortAdapter.buildCohortAdapter().createCohort(
       request,
       cohortCreateDto,

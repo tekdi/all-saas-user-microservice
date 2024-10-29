@@ -17,6 +17,9 @@ export class Tenants {
     @Column()
     domain: string;
 
+    @Column()
+    status: string;
+
     @CreateDateColumn({
         type: "timestamp with time zone",
         default: () => "CURRENT_TIMESTAMP",
