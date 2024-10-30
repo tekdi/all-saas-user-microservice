@@ -60,7 +60,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api/swagger-docs", app, document);
   app.useGlobalFilters(new AllExceptionsFilter())
-  app.enableCors();
+  app.enableCors({
+    origin: ['*']
+  });
   await app.listen(3000);
 }
 bootstrap();
