@@ -64,6 +64,7 @@ async function bootstrap() {
     origin: ['*'],
     methods: ['GET', 'POST', 'HEAD', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     credentials: false,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header', 'Accept']
   });
   await app.listen(3000);
 }
