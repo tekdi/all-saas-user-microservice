@@ -61,7 +61,9 @@ async function bootstrap() {
   SwaggerModule.setup("api/swagger-docs", app, document);
   app.useGlobalFilters(new AllExceptionsFilter())
   app.enableCors({
-    origin: ['*']
+    origin: ['*'],
+    methods: ['GET', 'POST', 'HEAD', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: false,
   });
   await app.listen(3000);
 }
