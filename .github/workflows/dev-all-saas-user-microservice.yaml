@@ -20,5 +20,5 @@ jobs:
             fi
             echo "${{ secrets.DEV_ENV }}" > .env
             ls -ltra
-            cd ../
+            cd /home/ubuntu/all-user-microservice
             ./deploy.sh
