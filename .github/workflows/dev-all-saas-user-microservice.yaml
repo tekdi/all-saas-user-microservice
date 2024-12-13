@@ -1,6 +1,9 @@
 name: Deployment on the All-saas-user-microservice Dev
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - all-saas-0.1  
+
 jobs:
   ALL-SAAS-USER-MICROSERVICE-DEPLOYMENT:
     runs-on: ubuntu-latest
