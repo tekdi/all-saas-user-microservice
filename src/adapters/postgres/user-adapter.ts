@@ -210,41 +210,48 @@ export class PostgresUserService implements IServicelocator {
 
 
   async findAllUserDetails(userSearchDto) {
-
-    let { limit, offset, filters, exclude, sort } = userSearchDto;
+    let { limit, offset, filters, exclude, sort, tenantCohortRoleMapping } = userSearchDto;
     let excludeCohortIdes;
     let excludeUserIdes;
-
-    offset = offset ? `OFFSET ${offset}` : '';
-    limit = limit ? `LIMIT ${limit}` : ''
-    let result = {
+  
+    const { tenantId, cohortId } = tenantCohortRoleMapping || {};
+    
+    offset = offset ? `OFFSET ${offset}` : "";
+    limit = limit ? `LIMIT ${limit}` : "";
+    const result = {
       totalCount: 0,
-      getUserDetails: []
+      getUserDetails: [],
     };
-
+  
     let whereCondition = `WHERE`;
     let index = 0;
     const searchCustomFields: any = {};
-
+  
     const userAllKeys = this.usersRepository.metadata.columns.map(
-      (column) => column.propertyName,
+      (column) => column.propertyName
     );
-    const userKeys = userAllKeys.filter(key => key !== 'district' && key !== 'state');
-
-
+    const userKeys = userAllKeys.filter(
+      (key) => key !== "district" && key !== "state"
+    );
+  
+    // Add filters logic
     if (filters && Object.keys(filters).length > 0) {
       for (const [key, value] of Object.entries(filters)) {
         if (index > 0) {
-          whereCondition += ` AND `
+          whereCondition += ` AND `;
         }
         if (userKeys.includes(key)) {
-          if (key === 'name') {
+          if (key === "name") {
             whereCondition += ` U."${key}" ILIKE '%${value}%'`;
-          }
-          else {
-            if (key === 'status') {
-              if (Array.isArray(value) && value.every(item => typeof item === 'string')) {
-                const status = value.map(item => `'${item.trim().toLowerCase()}'`).join(',');
+          } else {
+            if (key === "status") {
+              if (
+                Array.isArray(value) &&
+                value.every((item) => typeof item === "string")
+              ) {
+                const status = value
+                  .map((item) => `'${item.trim().toLowerCase()}'`)
+                  .join(",");
                 whereCondition += ` U."${key}" IN(${status})`;
               }
             } else {
@@ -253,81 +260,116 @@ export class PostgresUserService implements IServicelocator {
           }
           index++;
         } else {
-          if (key == 'role') {
-            whereCondition += ` R."name" = '${value}'`
+          if (key == "role") {
+            whereCondition += ` R."name" = '${value}'`;
             index++;
           } else {
             searchCustomFields[key] = value;
           }
         }
-      };
+      }
     }
-
+  
+    // Add tenantId filter via UserTenantMapping table
+    if (tenantId) {
+      whereCondition += `${index > 0 ? " AND " : ""} UTM."tenantId" = '${tenantId}'`;
+      index++;
+    }
+  
+    // Add cohortId filter via CohortMembers table
+    if (cohortId && cohortId.length > 0) {
+      const cohortCondition = cohortId.map(id => `'${id}'`).join(",");
+      whereCondition += `${index > 0 ? " AND " : ""} CM."cohortId" IN (${cohortCondition})`;
+      index++;
+    }
+  
     if (exclude && Object.keys(exclude).length > 0) {
       Object.entries(exclude).forEach(([key, value]) => {
-        if (key == 'cohortIds') {
-          excludeCohortIdes = (value);
+        if (key == "cohortIds") {
+          excludeCohortIdes = value;
         }
-        if (key == 'userIds') {
-          excludeUserIdes = (value);
+        if (key == "userIds") {
+          excludeUserIdes = value;
         }
       });
     }
-
-    let orderingCondition = '';
-    if (sort && Object.keys(sort).length > 0) {
+  
+    let orderingCondition = "";
+    if (sort && sort.length === 2) {
       orderingCondition = `ORDER BY U."${sort[0]}" ${sort[1]}`;
     }
-
+  
     let getUserIdUsingCustomFields;
-
-    //If source config in source details from fields table is not exist then return false 
+  
+    // Handle custom fields
     if (Object.keys(searchCustomFields).length > 0) {
-      let context = 'USERS'
-      getUserIdUsingCustomFields = await this.fieldsService.filterUserUsingCustomFields(context, searchCustomFields);
-
+      const context = "USERS";
+      getUserIdUsingCustomFields =
+        await this.fieldsService.filterUserUsingCustomFields(
+          context,
+          searchCustomFields
+        );
+  
       if (getUserIdUsingCustomFields == null) {
         return false;
       }
     }
-
+  
     if (getUserIdUsingCustomFields && getUserIdUsingCustomFields.length > 0) {
-      const userIdsDependsOnCustomFields = getUserIdUsingCustomFields.map(userId => `'${userId}'`).join(',');
-      whereCondition += `${index > 0 ? ' AND ' : ''} U."userId" IN (${userIdsDependsOnCustomFields})`;
+      const userIdsDependsOnCustomFields = getUserIdUsingCustomFields
+        .map((userId) => `'${userId}'`)
+        .join(",");
+      whereCondition += `${index > 0 ? " AND " : ""
+        } U."userId" IN (${userIdsDependsOnCustomFields})`;
       index++;
     }
-
-    const userIds = excludeUserIdes?.length > 0 ? excludeUserIdes.map(userId => `'${userId}'`).join(',') : null;
-
-    const cohortIds = excludeCohortIdes?.length > 0 ? excludeCohortIdes.map(cohortId => `'${cohortId}'`).join(',') : null;
-
+  
+    const userIds =
+      excludeUserIdes?.length > 0
+        ? excludeUserIdes.map((userId) => `'${userId}'`).join(",")
+        : null;
+  
+    const cohortIds =
+      excludeCohortIdes?.length > 0
+        ? excludeCohortIdes.map((cohortId) => `'${cohortId}'`).join(",")
+        : null;
+  
     if (userIds || cohortIds) {
-      const userCondition = userIds ? `U."userId" NOT IN (${userIds})` : '';
-      const cohortCondition = cohortIds ? `CM."cohortId" NOT IN (${cohortIds})` : '';
-      const combinedCondition = [userCondition, cohortCondition].filter(String).join(' AND ');
-      whereCondition += (index > 0 ? ' AND ' : '') + combinedCondition;
+      const userCondition = userIds ? ` U."userId" NOT IN (${userIds})` : "";
+      const cohortCondition = cohortIds
+        ? `CM."cohortId" NOT IN (${cohortIds})`
+        : "";
+      const combinedCondition = [userCondition, cohortCondition]
+        .filter(String)
+        .join(" AND ");
+      whereCondition += (index > 0 ? " AND " : "") + combinedCondition;
     } else if (index === 0) {
-      whereCondition = '';
+      whereCondition = "";
     }
-
-    //Get user core fields data
-    let query = `SELECT U."userId", U."username",U."email", U."name", R."name" AS role, U."mobile", U."createdBy",U."updatedBy", U."createdAt", U."updatedAt", U.status, COUNT(*) OVER() AS total_count 
-      FROM  public."Users" U
-      LEFT JOIN public."CohortMembers" CM 
-      ON CM."userId" = U."userId"
-      LEFT JOIN public."UserRolesMapping" UR
-      ON UR."userId" = U."userId"
-      LEFT JOIN public."Roles" R
-      ON R."roleId" = UR."roleId" ${whereCondition} GROUP BY U."userId", R."name" ${orderingCondition} ${offset} ${limit}`
-    let userDetails = await this.usersRepository.query(query);
-
+  
+    // Construct final query
+    const query = `SELECT U."userId", U."username", U."email", U."name", R."name" AS role, 
+                          U."mobile", U."createdBy", U."updatedBy", U."createdAt", U."updatedAt", 
+                          U.status, COUNT(*) OVER() AS total_count 
+                   FROM public."Users" U
+                   JOIN public."UserTenantMapping" UTM ON U."userId" = UTM."userId"
+                   LEFT JOIN public."CohortMembers" CM ON CM."userId" = U."userId"
+                   LEFT JOIN public."UserRolesMapping" UR ON UR."userId" = U."userId"
+                   LEFT JOIN public."Roles" R ON R."roleId" = UR."roleId" 
+                   ${whereCondition} GROUP BY U."userId", R."name" 
+                   ${orderingCondition} ${offset} ${limit}`;
+    
+    const userDetails = await this.usersRepository.query(query);
+  
     if (userDetails.length > 0) {
       result.totalCount = parseInt(userDetails[0].total_count, 10);
-
-      //Get user custom field data
-      for (let userData of userDetails) {
-        let customFields = await this.fieldsService.getUserCustomFieldDetails(userData.userId);
-        userData['customFields'] = customFields.map(data => ({
+  
+      // Add custom field data
+      for (const userData of userDetails) {
+        const customFields = await this.fieldsService.getUserCustomFieldDetails(
+          userData.userId
+        );
+        userData["customFields"] = customFields.map((data) => ({
           fieldId: data?.fieldId,
           label: data?.label,
           value: data?.value,
@@ -341,6 +383,7 @@ export class PostgresUserService implements IServicelocator {
     }
     return result;
   }
+  
 
   async getUsersDetailsById(userData: UserData, response: any) {
     const apiId = APIID.USER_GET;
