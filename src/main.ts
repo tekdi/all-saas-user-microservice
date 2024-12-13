@@ -63,7 +63,7 @@ async function bootstrap() {
   app.enableCors({
     origin: ['*'],
     methods: ['GET', 'POST', 'HEAD', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: false,
+    credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Custom-Header', 'Accept', 'rbac_token','tenantid','academicyearid','deviceid' ]
   });
   await app.listen(3000);
