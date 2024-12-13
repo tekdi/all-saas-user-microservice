@@ -18,6 +18,6 @@ jobs:
             if [ -f .env ]; then
             rm .env
             fi
-            echo "${{ secrets.DEV_ENV }}" > .env
+            printf "%s" "${{ secrets.DEV_ENV }}" > .env
             ls -ltra
             ./deploy.sh
