@@ -15,10 +15,5 @@ jobs:
           port: ${{ secrets.PORT_DEV }}
           script: |
             cd ${{ secrets.TARGET_DEV_DIR }}
-            if [ -f .env ]; then
-            rm .env
-            fi
-            printf "%s" "${{ secrets.DEV_ENV }}" > .env
             ls -ltra
-            cd ../
-            /.deploy.sh
+            ./deploy.sh
