@@ -5,14 +5,14 @@ export enum TenantStatus { Active = 'active', Inactive = 'inactive', }
 export class TenantUpdateDto {
     
 
-    @Expose()
-    tenantId: string;
+    // @Expose()
+    // tenantId: string;
 
-    @Expose()
-    createdAt: string;
+    // @Expose()
+    // createdAt: string;
 
-    @Expose()
-    updatedAt: string;
+    // @Expose()
+    // updatedAt: string;
 
     //tenant name
     @ApiProperty({
@@ -52,6 +52,16 @@ export class TenantUpdateDto {
     })
     @Expose()
     params: object;
+
+    @Expose()
+    @IsString()
+    @IsOptional()
+    createdBy: string;
+
+    @Expose()
+    @IsString()
+    @IsOptional()
+    updatedBy: string;
 
     constructor(obj?: Partial<TenantUpdateDto>) {
         if (obj) {

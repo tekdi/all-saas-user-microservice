@@ -135,9 +135,9 @@ export class CohortController {
     if (!cohortCreateDto.tenantId || !isUUID(cohortCreateDto.tenantId)) {
       throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
     }
-    if (!tenantId || !isUUID(tenantId)) {
-      throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
-    }
+    // if (!tenantId || !isUUID(tenantId)) {
+    //   throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
+    // }
     // if (!academicYearId || !isUUID(academicYearId)) {
     //   throw new BadRequestException(API_RESPONSES.ACADEMICYEARID_VALIDATION);
     // }
@@ -177,9 +177,9 @@ export class CohortController {
     let tenantId = headers["tenantid"];
     
     // let academicYearId = headers["academicyearid"];
-    if (!tenantId || !isUUID(tenantId)) {
-      throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
-    }
+    // if (!tenantId || !isUUID(tenantId)) {
+    //   throw new BadRequestException(API_RESPONSES.TENANTID_VALIDATION);
+    // }
     // if (!academicYearId || !isUUID(academicYearId)) {
     //   throw new BadRequestException(API_RESPONSES.ACADEMICYEARID_VALIDATION);
     // }
@@ -191,7 +191,6 @@ export class CohortController {
       response
     );
   }
-
   @UseFilters(new AllExceptionsFilter(APIID.COHORT_UPDATE))
   @Put("/update/:cohortId")
   @ApiBasicAuth("access-token")

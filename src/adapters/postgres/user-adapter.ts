@@ -63,10 +63,10 @@ export class PostgresUserService implements IServicelocator {
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
     private fieldsService: PostgresFieldsService,
-    private readonly postgresRoleService: PostgresRoleService,
+    private postgresRoleService: PostgresRoleService,
     private readonly notificationRequest: NotificationRequest,
     private readonly jwtUtil: JwtUtil,
-    private configService: ConfigService
+    private configService: ConfigService,
     // private cohortMemberService: PostgresCohortMembersService,
   ) {
     this.jwt_secret = this.configService.get<string>("RBAC_JWT_SECRET");
@@ -193,6 +193,48 @@ export class PostgresUserService implements IServicelocator {
     response: any,
     userSearchDto: UserSearchDto) {
     const apiId = APIID.USER_LIST;
+    const authToken = request.headers["authorization"];
+    const token = authToken.split(" ")[1];
+    let decoded;
+    decoded = jwt_decode(token);
+    const userId = decoded["sub"];
+    const isSuperAdmin = await this.postgresRoleService.isSuperAdmin(userId);
+    if(!isSuperAdmin) {
+      let userRoles = await this.userRoleMappingRepository.find({
+        where: {
+          userId: userId,
+          tenantId: tenantId
+        }
+      })
+      let roleName = await this.roleRepository.find({
+        where: {
+          roleId: userRoles[0].roleId
+        }
+      })
+      if(roleName[0].code === 'cohort_admin') {
+        userSearchDto.tenantCohortRoleMapping.tenantId = tenantId;
+        if (!userSearchDto.tenantCohortRoleMapping.cohortId || userSearchDto.tenantCohortRoleMapping.cohortId.length === 0) 
+        {
+          const cohortIdFromMemberRepo = await this.cohortMemberRepository.find({
+            where:{
+              userId: userId,
+            }
+          })
+          const cohortIds = cohortIdFromMemberRepo.map((membership) => membership.cohortId);
+          const cohorts = await this.cohortRepository.find({
+            where: {
+              cohortId: In(cohortIds),
+              tenantId: tenantId,
+            },
+          });
+          userSearchDto.tenantCohortRoleMapping.cohortId = cohorts.map((id)=> id.cohortId);
+        }
+
+      }
+      if(roleName[0].code === 'tenant_admin') {
+        userSearchDto.tenantCohortRoleMapping.tenantId = tenantId;
+      }
+  }
     try {
       let findData = await this.findAllUserDetails(userSearchDto);
 
@@ -211,10 +253,10 @@ export class PostgresUserService implements IServicelocator {
 
   async findAllUserDetails(userSearchDto) {
 
-    let { limit, offset, filters, exclude, sort } = userSearchDto;
+    let { limit, offset, filters, exclude, sort,tenantCohortRoleMapping } = userSearchDto;
     let excludeCohortIdes;
     let excludeUserIdes;
-
+    const { tenantId, cohortId } = tenantCohortRoleMapping || {};
     offset = offset ? `OFFSET ${offset}` : '';
     limit = limit ? `LIMIT ${limit}` : ''
     let result = {
@@ -261,6 +303,17 @@ export class PostgresUserService implements IServicelocator {
           }
         }
       };
+    }
+    if (tenantId) {
+      whereCondition += `${index > 0 ? " AND " : ""} UTM."tenantId" = '${tenantId}'`;
+      index++;
+    }
+
+    // Add cohortId filter via CohortMembers table
+    if (cohortId && cohortId.length > 0) {
+      const cohortCondition = cohortId.map(id => `'${id}'`).join(",");
+      whereCondition += `${index > 0 ? " AND " : ""} CM."cohortId" IN (${cohortCondition})`;
+      index++;
     }
 
     if (exclude && Object.keys(exclude).length > 0) {
@@ -311,14 +364,16 @@ export class PostgresUserService implements IServicelocator {
     }
 
     //Get user core fields data
-    let query = `SELECT U."userId", U."username",U."email", U."name", R."name" AS role, U."mobile", U."createdBy",U."updatedBy", U."createdAt", U."updatedAt", U.status, COUNT(*) OVER() AS total_count 
-      FROM  public."Users" U
-      LEFT JOIN public."CohortMembers" CM 
-      ON CM."userId" = U."userId"
-      LEFT JOIN public."UserRolesMapping" UR
-      ON UR."userId" = U."userId"
-      LEFT JOIN public."Roles" R
-      ON R."roleId" = UR."roleId" ${whereCondition} GROUP BY U."userId", R."name" ${orderingCondition} ${offset} ${limit}`
+    const query = `SELECT U."userId", U."username", U."email", U."name", R."name" AS role, 
+    U."mobile", U."createdBy", U."updatedBy", U."createdAt", U."updatedAt", 
+    U.status, COUNT(*) OVER() AS total_count 
+    FROM public."Users" U
+    JOIN public."UserTenantMapping" UTM ON U."userId" = UTM."userId"
+    LEFT JOIN public."CohortMembers" CM ON CM."userId" = U."userId"
+    LEFT JOIN public."UserRolesMapping" UR ON UR."userId" = U."userId"
+    LEFT JOIN public."Roles" R ON R."roleId" = UR."roleId" 
+    ${whereCondition} GROUP BY U."userId", R."name" 
+    ${orderingCondition} ${offset} ${limit}`;
     let userDetails = await this.usersRepository.query(query);
 
     if (userDetails.length > 0) {

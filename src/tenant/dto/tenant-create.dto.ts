@@ -14,6 +14,12 @@ export class TenantCreateDto {
     @Expose()
     updatedAt: string;
 
+    @Expose()
+    createdBy: string;
+
+    @Expose()
+    updatedBy: string;
+
     //tenant name
     @ApiProperty({
         type: String,
@@ -29,21 +35,23 @@ export class TenantCreateDto {
     @ApiPropertyOptional({
         type: String,
         description: "Domain Name",
-        default: "",
+        default: null,
     })
     @IsString()
+    @IsOptional()
     @Expose()
-    domain: string;
+    domain?: string | null;
+    
 
     //status
-    @ApiProperty({
-        type: String,
-        description: "The status of Tenant",
-    })
-    @IsOptional()
-    @IsEnum(TenantStatus, { message: 'Status must be one of: active, archived, inactive', })
-    @Expose() 
-    status: TenantStatus;
+    // @ApiProperty({
+    //     type: String,
+    //     description: "The status of Tenant",
+    // })
+    // @IsOptional()
+    // @IsEnum(TenantStatus, { message: 'Status must be one of: active, archived, inactive', })
+    // @Expose() 
+    // status: TenantStatus;
 
     //params
     @ApiPropertyOptional({

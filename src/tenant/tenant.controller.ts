@@ -1,16 +1,20 @@
-import { Body, Controller, Delete, Get, Patch, Post, Query, Req, Res, SerializeOptions, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Patch, Post, Query, Req, Res, SerializeOptions, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TenantService } from './tenant.service';
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBasicAuth, ApiBody, ApiCreatedResponse, ApiForbiddenResponse } from '@nestjs/swagger';
 import { TenantCreateDto } from './dto/tenant-create.dto';
 import { TenantUpdateDto } from './dto/tenant-update.dto';
 import { Request,Response } from "express";
+import { JwtAuthGuard } from "src/common/guards/keycloak.guard";
 @Controller('tenant')
+@UseGuards(JwtAuthGuard)
 export class TenantController {
     constructor(
         private tenantService: TenantService,
     ) { }
     //Get tenant information
     @Get("/read")
+    @ApiBasicAuth("access-token")
+    @UsePipes(new ValidationPipe())
     @ApiCreatedResponse({ description: "Tenant Data Fetch" })
     @ApiForbiddenResponse({ description: "Forbidden" })
     @SerializeOptions({
@@ -36,8 +40,10 @@ export class TenantController {
     public async createTenants(
         @Req() request: Request,
         @Res() response: Response,
-        @Body() tenantCreateDto: TenantCreateDto
+        @Body() tenantCreateDto: TenantCreateDto,
+        @Query("userId") userId: string | null = null
     ) {
+        tenantCreateDto.createdBy = userId;
         return await this.tenantService.createTenants(request, tenantCreateDto, response);
     }
 
@@ -71,9 +77,11 @@ export class TenantController {
         @Req() request: Request,
         @Res() response: Response,
         @Body() tenantUpdateDto: TenantUpdateDto,
-        @Query("id") id: string
+        @Query("id") id: string,
+        @Query("userId") userId: string | null = null
     ) {
         const tenantId = id;
+        tenantUpdateDto.updatedBy = userId;
         return await this.tenantService.updateTenants(request, tenantId, response,tenantUpdateDto);
     }
 }

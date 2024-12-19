@@ -28,6 +28,17 @@ export class filtersProperty {
   @IsNotEmpty()
   cohortId?: string;
 
+  @ApiProperty({
+    type: String,
+    description: "Tenant Id",
+    default: "",
+  })
+  @Expose()
+  @IsOptional()
+  @IsUUID()
+  // @IsNotEmpty()
+  tenantId?: string;
+
   //academicYearId
   @ApiProperty({
     type: String,
