@@ -2,7 +2,7 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 import { Role } from "src/rbac/role/entities/role.entity";
 import { RolePrivilegeMapping } from "src/rbac/assign-privilege/entities/assign-privilege.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import {
   CreateRolesDto,
   RoleDto,
@@ -61,8 +61,8 @@ export class PostgresRoleService {
           code,
           createdAt: new Date(),
           updatedAt: new Date(),
-          createdBy: request.user.userId, // Assuming you have a user object in the request
-          updatedBy: request.user.userId,
+          createdBy: request?.user?.userId || null,
+          updatedBy: request?.user?.userId || null,
           tenantId, // Add the tenantId to the RoleDto
         });
         // Convert roleDto to lowercase
@@ -70,15 +70,16 @@ export class PostgresRoleService {
         const roleEntity = this.roleRepository.create(newRoleDto);
 
         // Save the role entity to the database
-        const response = await this.roleRepository.save(roleEntity);
-        roles.push(new RolesResponseDto(response));
+        const createdRole = await this.roleRepository.save(roleEntity);
+        roles.push(new RolesResponseDto(createdRole));
       }
     } catch (e) {
       const errorMessage = e.message || 'Internal server error';
       return APIResponse.error(response, apiId, "Internal Server Error", errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return APIResponse.success(response, apiId, { successCount: roles.length, errorCount: errors.length, roles, errors },
+    APIResponse.success(response, apiId, { successCount: roles.length, errorCount: errors.length, roles, errors },
       HttpStatus.OK, 'Role successfully Created')
+    return { successCount: roles.length, errorCount: errors.length, roles, errors }
   }
 
   public async getRole(roleId: string, request: any, response: Response) {
@@ -286,5 +287,17 @@ export class PostgresRoleService {
       return true;
     }
     return false;
+  }
+  async isSuperAdmin(userId) {
+    const userRoles = await this.userRoleMappingRepository.find({
+      where: { userId },
+    });
+    const roleIds = userRoles.map((ur) => ur.roleId);
+    if (!roleIds.length) return false;
+    const result = await this.roleRepository.find({
+      where: { roleId: In(roleIds), code: "super_admin" },
+    });
+    if (result.length === 0) return false;
+    return true;
   }
 }

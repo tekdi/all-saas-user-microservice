@@ -26,6 +26,9 @@ import { PostgresAcademicYearService } from "./academicyears-adapter";
 import { API_RESPONSES } from "@utils/response.messages";
 import { CohortAcademicYear } from "src/cohortAcademicYear/entities/cohortAcademicYear.entity";
 import { PostgresCohortMembersService } from "./cohortMembers-adapter";
+import { UserRoleMapping } from "src/rbac/assign-role/entities/assign-role.entity"
+import { Role } from "src/rbac/role/entities/role.entity";
+import { PostgresRoleService } from './rbac/role-adapter';
 
 @Injectable()
 export class PostgresCohortService {
@@ -40,7 +43,12 @@ export class PostgresCohortService {
     private fieldsRepository: Repository<Fields>,
     @InjectRepository(UserTenantMapping)
     private UserTenantMappingRepository: Repository<UserTenantMapping>,
+    @InjectRepository(UserRoleMapping)
+    private UserRoleMappingRepository: Repository<UserRoleMapping>,
+    @InjectRepository(Role)
+    private RoleRepository: Repository<Role>,
     private fieldsService: PostgresFieldsService,
+    private postgresRoleService: PostgresRoleService,
     private readonly cohortAcademicYearService: CohortAcademicYearService,
     private readonly postgresAcademicYearService: PostgresAcademicYearService,
     private readonly postgresCohortMembersService : PostgresCohortMembersService
@@ -543,6 +551,33 @@ export class PostgresCohortService {
     response
   ) {
     const apiId = APIID.COHORT_LIST;
+    const authToken = request.headers["authorization"];
+    const token = authToken.split(" ")[1];
+    let decoded;
+    decoded = jwt_decode(token);
+    const userId = decoded["sub"];
+    const isSuperAdmin = await this.postgresRoleService.isSuperAdmin(userId);
+    if(!isSuperAdmin) {
+      let userRoles = await this.UserRoleMappingRepository.find({
+        where: {
+          userId: userId,
+          tenantId: tenantId
+        }
+      })
+      let roleName = await this.RoleRepository.find({
+        where: {
+          roleId: userRoles[0].roleId
+        }
+      })
+      if(roleName[0].code === 'cohort_admin') {
+        cohortSearchDto.filters.userId = userId;
+
+      }
+      if(roleName[0].code === 'tenant_admin') {
+        cohortSearchDto.filters.tenantId = tenantId;
+
+      }
+    }
     try {
       let { limit, sort, offset, filters } = cohortSearchDto;
       // let cohortsByAcademicYear :CohortAcademicYear[];
@@ -647,25 +682,25 @@ export class PostgresCohortService {
 
       let count = 0;
 
-      if (whereClause["userId"]) {
+      if (filters.userId) {
         const additionalFields = Object.keys(whereClause).filter(
           (key) => key !== "userId" && key !== "academicYearId"
         );
-        if (additionalFields.length > 0) {
-          // Handle the case where userId is provided along with other fields
-          return APIResponse.error(
-            response,
-            apiId,
-            `When filtering by userId, do not include additional fields`,
-            "Invalid filters",
-            HttpStatus.BAD_REQUEST
-          );
-        }
+        // if (additionalFields.length > 0) {
+        //   // Handle the case where userId is provided along with other fields
+        //   return APIResponse.error(
+        //     response,
+        //     apiId,
+        //     `When filtering by userId, do not include additional fields`,
+        //     "Invalid filters",
+        //     HttpStatus.BAD_REQUEST
+        //   );
+        // }
 
         let userTenantMapExist = await this.UserTenantMappingRepository.find({
           where: {
             tenantId: tenantId,
-            userId: whereClause["userId"],
+            userId: filters.userId,
           },
         });
         if (userTenantMapExist.length == 0) {
@@ -680,7 +715,8 @@ export class PostgresCohortService {
 
         const [data, totalCount] =
           await this.cohortMembersRepository.findAndCount({
-            where: whereClause,
+            // where: whereClause,
+            where :{userId: filters.userId,}
           });
         const userExistCohortGroup = data.slice(offset, offset + limit);
         count = totalCount;
@@ -689,6 +725,7 @@ export class PostgresCohortService {
         let cohortAllData = await this.cohortRepository.find({
           where: {
             cohortId: In(cohortIds),
+            tenantId : tenantId
           },
           order,
         });

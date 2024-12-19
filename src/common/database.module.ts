@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user-entity';
+import { Tenants } from 'src/userTenantMapping/entities/tenant.entity';
 
 @Module({
   imports: [
@@ -17,9 +18,11 @@ import { User } from 'src/user/entities/user-entity';
         //   User
         // ],
         autoLoadEntities: true,
+        // synchronize: true,
       }),
       inject: [ConfigService],
     }),
+    // TypeOrmModule.forFeature([Tenants]),
   ],
   providers: [ConfigService],
 })

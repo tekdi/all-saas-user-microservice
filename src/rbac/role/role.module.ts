@@ -20,5 +20,6 @@ import { RolePrivilegeMapping } from "../assign-privilege/entities/assign-privil
   ],
   controllers: [RoleController],
   providers: [RoleAdapter, HasuraRoleService, PostgresRoleService],
+  exports : [PostgresRoleService]
 })
 export class RoleModule {}

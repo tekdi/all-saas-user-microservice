@@ -14,7 +14,7 @@ import { User } from "../entities/user-entity";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class tenantRoleMappingDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     description: "Tenant Id",
   })
@@ -26,10 +26,10 @@ export class tenantRoleMappingDto {
   @ApiPropertyOptional({
     type: [String],
     description: "The cohort id of the user",
-    // default: [],
+    default: [],
   })
   @Expose()
-  // @IsOptional()
+  @IsOptional()
   @IsUUID(undefined, { each: true })
   cohortId: string[];
 

@@ -11,14 +11,18 @@ export class Tenants {
     @PrimaryGeneratedColumn("uuid")
     tenantId: string;
 
-    @Column()
+    @Column({ type: 'text'})
     name: string;
 
-    @Column()
-    domain: string;
+    @Column({ type: 'text', nullable: true })
+    domain: string | null;    
 
-    @Column()
-    status: string;
+    @Column({
+        type: 'text',
+        default: 'active',
+        enum: ['active', 'inactive', 'archive'],
+    })
+    status: 'active' | 'inactive' | 'archive';
 
     @CreateDateColumn({
         type: "timestamp with time zone",
@@ -32,6 +36,11 @@ export class Tenants {
     })
     updatedAt: Date;
 
-    @Column()
-    params: string;
+    @Column({ type: 'jsonb', nullable: true })
+    params: Record<string, any>;
+
+    @Column({ type: 'uuid', nullable: true })
+    createdBy: string | null;
+    @Column({ type: 'uuid', nullable: true })
+    updatedBy: string | null;
 }
